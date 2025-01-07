@@ -7,21 +7,13 @@ jobs:
   check:
     runs-on: ubuntu-24.04
     steps:
-      - name: Get latest release
-        id: get_release_src
-        shell: bash
+      - name: Get latest release from cheat
+        id: get_release
         run: |
           # Fetch release information and extract the release tag
-          URL="curl -sL https://api.github.com/repos/open-mpi/ompi/tags"
-          RELEASE_TAG_SRC="$(curl -sL $URL | jq '.[1].name')"
-
-          if [[ "${{ RELEASE_TAG_SRC }}" =~ "rc" ]]; then
-                gh run cancel ${{ github.run_id }}
-          fi
-          
-          echo "release_tag=$RELEASE_TAG_SRC" >> $GITHUB_OUTPUT
-          echo "release_tag=$RELEASE_TAG_SRC" >> $GITHUB_ENV
-          echo "latest release: $RELEASE_TAG_SRC" 
+          RELEASE_TAG=$(curl -sL https://api.github.com/repos/${{ vars.REPO_OWNER }}/${{ vars.REPO_NAME }}/releases/latest | jq -r '.tag_name')
+          echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          echo "latest release: $RELEASE_TAG"
 
       - uses: actions/checkout@v3
         with:
